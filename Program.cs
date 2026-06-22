@@ -1,6 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// 🛠️ ISSO RESOLVE O ERRO: Ativa a liberação de segurança (CORS)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -13,16 +12,14 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Ativa a regra no servidor
 app.UseCors();
 
 // Lista na memória para guardar os agendamentos temporariamente
 var agendamentos = new List<Agendamento>();
 
-// Rota de teste para ter certeza que o link funciona
 app.MapGet("/", () => "API da Vintage Blade Barber está voando!");
 
-// Rota que o botão do seu site chama para salvar
+// Rota de Agendamento com validação de duplicidade
 app.MapPost("/agendar", (Agendamento novoAgendamento) =>
 {
     if (string.IsNullOrEmpty(novoAgendamento.Cliente))
@@ -30,11 +27,25 @@ app.MapPost("/agendar", (Agendamento novoAgendamento) =>
         return Results.BadRequest("Nome do cliente é obrigatório.");
     }
     
+    if (string.IsNullOrEmpty(novoAgendamento.Data))
+    {
+        return Results.BadRequest("A data e o horário são obrigatórios.");
+    }
+
+    // 🧠 VALIDAÇÃO INTELEGENTE: Procura se já existe alguém no mesmo horário
+    bool horarioOcupado = agendamentos.Any(a => a.Data == novoAgendamento.Data);
+
+    if (horarioOcupado)
+    {
+        // Se o horário já existir, rejeita o agendamento e avisa o site
+        return Results.BadRequest("Este horário já está reservado por outro cliente. Escolha outro momento!");
+    }
+    
+    // Se estiver livre, adiciona com sucesso
     agendamentos.Add(novoAgendamento);
     return Results.Ok(new { mensagem = "Agendamento realizado com sucesso!" });
 });
 
 app.Run();
 
-// Estrutura do agendamento
 public record Agendamento(string Cliente, string Data);
