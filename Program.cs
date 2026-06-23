@@ -17,8 +17,7 @@ app.UseCors();
 // Lista na memória para guardar os agendamentos temporariamente
 var agendamentos = new List<Agendamento>();
 
-app.MapGet("/", () => "API da Vintage Blade Barber está voando!");
-
+app.MapGet("/", () => agenda);
 // Rota de Agendamento com validação de duplicidade
 app.MapPost("/agendar", (Agendamento novoAgendamento) =>
 {
