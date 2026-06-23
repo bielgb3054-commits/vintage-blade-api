@@ -17,7 +17,7 @@ app.UseCors();
 // Lista na memória para guardar os agendamentos temporariamente
 var agendamentos = new List<Agendamento>();
 
-app.MapGet("/", () => agenda);
+app.MapGet("/", () => agendamentos);
 // Rota de Agendamento com validação de duplicidade
 app.MapPost("/agendar", (Agendamento novoAgendamento) =>
 {
